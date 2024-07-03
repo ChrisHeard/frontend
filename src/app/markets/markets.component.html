@@ -1,0 +1,78 @@
+<div class="container">
+  <div class="app-header">
+    <h2>Markets Component</h2>
+    <ng-container *ngIf="exchangeData$ | async as exchangeData">
+      <select (change)="onCurrencyChange($event)">
+        <option value="" disabled selected>Select a currency</option>
+        <option *ngFor="let currency of getObjectKeys(exchangeData)" [value]="currency">
+          {{ currency }}
+        </option>
+      </select>
+    </ng-container>
+  </div>
+
+  <ul class="market-select-list">
+    <li class="market-select-list-item" *ngFor="let index of indexList$ | async" (click)="onMarketFocus(index)">
+      <div class="market-item-content">
+        <span>{{ index }}</span>
+        <input type="checkbox" (click)="$event.stopPropagation(); onMarketSelect($event, index)" />
+      </div>
+    </li>
+  </ul>
+
+  <div class="app-window market-focus-window" *ngIf="focusedMarketDetails$ | async as marketDetails">
+    <h3>Market Details: {{ marketDetails.id }}</h3>
+    <p>Component Count: {{ marketDetails.componentCount }}</p>
+    <p>Max Age: {{ getConvertedValue(marketDetails.maxAge, marketDetails.currency) }}</p>
+    <p>Previous Close: {{ getConvertedValue(marketDetails.previousClose, marketDetails.currency) }}</p>
+    <p>Open: {{ getConvertedValue(marketDetails.open, marketDetails.currency) }}</p>
+    <p>Day Low: {{ getConvertedValue(marketDetails.regularMarketDayLow, marketDetails.currency) }}</p>
+    <p>Day High: {{ getConvertedValue(marketDetails.regularMarketDayHigh, marketDetails.currency) }}</p>
+    <p>Average Volume: {{ getConvertedValue(marketDetails.averageVolume, marketDetails.currency) }}</p>
+    <button (click)="showAdvanced = !showAdvanced">Toggle Advanced Filters</button>
+
+    <div *ngIf="showAdvanced" class="advanced-filters">
+      <h3>Advanced Filters</h3>
+      <div *ngFor="let param of getObjectKeys(sliderSettings)">
+        <label>{{ param }}</label>
+        <mat-slider 
+          [min]="sliderSettings[param].min"
+          [max]="sliderSettings[param].max"
+          [step]="sliderSettings[param].step"
+          (input)="onSliderChange(param, $event)"
+        >
+          <input matSliderStartThumb [(ngModel)]="sliderSettings[param].lower">
+          <input matSliderEndThumb [(ngModel)]="sliderSettings[param].upper">
+        </mat-slider>
+        <span>{{ sliderSettings[param].lower }} - {{ sliderSettings[param].upper }}</span>
+      </div>
+    </div>
+
+      <div *ngIf="filteredComponents.length > 0" class="filtered-components">
+        <h4>Filtered Components</h4>
+        <ul>
+          <li *ngFor="let component of filteredComponents">
+            {{ component.shortName }} ({{ component.symbol }}): {{ component.marketCap }}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-window market-select-window">
+    <h3>Selected Markets</h3>
+    <ul>
+      <li *ngFor="let market of (selectedMarkets$ | async) ?? []">{{ market.id }}</li>
+    </ul>
+  </div>
+
+  <ng-container *ngIf="exchangeTable">
+    <div>
+      <ul>
+      <li *ngFor="let currency of exchangeTable | keyvalue">
+        {{ currency.key }}: {{ currency.value }}
+      </li>
+      </ul>
+    </div>
+  </ng-container>
+

@@ -1,0 +1,20 @@
+<div class="container">
+    <h2>Model Builder</h2>
+    <form (ngSubmit)="getFinancialData()">
+      <label for="ticker">Choose Ticker Symbol:</label>
+      <select id="ticker" name="ticker" [(ngModel)]="ticker" required>
+        <option *ngFor="let symbol of symbols" [value]="symbol.ticker_symbol">
+          {{ symbol.ticker_symbol }} ({{ symbol.company_name }} - {{ symbol.country }} - {{ symbol.industry }})
+        </option>
+      </select>
+      <button type="submit">Get Financial Data</button>
+    </form>
+    <div *ngIf="result">
+      <h3>Financial Data Results</h3>
+      <p><strong>Ticker:</strong> {{ ticker }}</p>
+      <p><strong>Model:</strong> {{ result.model }}</p>
+      <p><strong>Intercept:</strong> {{ result.intercept }}</p>
+      <p><strong>Coefficients:</strong> {{ result.coefficients | json }}</p>
+      <p><strong>Score:</strong> {{ result.score }}</p>
+    </div>
+  </div>
